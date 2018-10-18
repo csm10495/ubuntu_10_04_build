@@ -73,6 +73,13 @@ ADD ginst /usr/local/dev/ginst
 WORKDIR /usr/local/dev/ginst
 RUN python -c "from ginst import *; g = GInst('8.2.0');g.installFromFolder('/usr/local/dev/gcc')"
 
+# Aliases for bash
+RUN echo "alias g++=/usr/local/gcc-8.2.0/bin/g++-8.2.0" >> ~/.bashrc
+RUN echo "alias gcc=/usr/local/gcc-8.2.0/bin/gcc-8.2.0" >> ~/.bashrc
+RUN echo "alias curl=/usr/local/curl/bin/curl" >> ~/.bashrc
+RUN echo "alias git=/usr/local/git/bin/git" >> ~/.bashrc
+RUN echo "alias openssl=/usr/local/openssl/bin/openssl" >> ~/.bashrc
+
 CMD "/bin/bash"
 '''
 
@@ -99,11 +106,16 @@ def downloadCertificateStore():
     with open(os.path.join(THIS_FOLDER, 'cacert.pem'), 'wb') as f:
         f.write(urlopen('https://curl.haxx.se/ca/cacert.pem').read())
 
-def getAllReposToDesiredCheckouts():
+def getAllReposToDesiredCheckouts(clean=True):
     for repo, changeset in GIT_CHECKOUTS.items():
         with tmpChdir(os.path.join(THIS_FOLDER, repo)):
             if subprocess.call('git checkout %s' % changeset, shell=True) != 0:
                 raise EnvironmentError("Failed to checkout repo %s -> %s" % (repo, changeset))
+            if clean:
+                # Hopefully this will make it so we don't need a rebuild even if we messed with stuff a bit
+                print ("Cleaning: %s" % repo)
+                if subprocess.call('git clean -df', shell=True) != 0:
+                    raise EnvironmentError("Failed to clean repo %s" % repo)
 
 def writeDockerfile():
     with open(os.path.join(THIS_FOLDER, 'Dockerfile'), 'w') as f:
