@@ -1,0 +1,15 @@
+[submodule "static/openssl"]
+	path = static/openssl
+	url = https://github.com/openssl/openssl
+[submodule "static/curl"]
+	path = static/curl
+	url = https://github.com/curl/curl.git
+[submodule "static/git"]
+	path = static/git
+	url = https://github.com/git/git.git
+[submodule "static/gcc"]
+	path = static/gcc
+	url = https://github.com/gcc-mirror/gcc.git
+[submodule "static/ginst"]
+	path = static/ginst
+	url = https://github.com/csm10495/ginst.git

@@ -1,3 +1,4 @@
+# This dockerfile is meant to be dynamic in that it downloads packages (other than via apt-get) via the internet
 FROM ubuntu:10.04
 
 # This Ubuntu doesn't have its packages on the normal server anymore
@@ -23,7 +24,7 @@ WORKDIR /usr/local/openssl-1.0.2o
 RUN ./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl shared zlib
 RUN make -j4
 RUN make install
-RUN echo "/usr/local/openssl/lib" >> /etc/ld.so.conf.d/openssl-1.0.2o.conf
+RUN echo "/usr/local/openssl/lib" >> /etc/ld.so.conf.d/openssl.conf
 RUN ldconfig -v
 RUN /usr/local/openssl/bin/openssl version
 # TODO CLEANUP
