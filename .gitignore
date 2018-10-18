@@ -108,3 +108,6 @@ venv.bak/
 
 # cert files
 **/cacert.pem
+
+# static dockerfile should be generated
+static/Dockerfile
