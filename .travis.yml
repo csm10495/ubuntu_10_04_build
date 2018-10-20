@@ -16,5 +16,5 @@ before_install:
 script:
   - python static/make_dockerfile.py
   - sed -i "s/ftp\:/http\:/g" static/gcc/contrib/download_prerequisites
-  - cd static/ && travis_wait 60 docker build -t ubuntu_10_04_build . > log.txt
+  - cd static/ && travis_wait 60 "docker build -t ubuntu_10_04_build . > log.txt"
   - tail -n 4096 log.txt
