@@ -1,5 +1,8 @@
 sudo: required
 
+git:
+  submodules: false
+  
 language: python
 python:
   - "3.6"
@@ -9,6 +12,7 @@ services:
 
 before_install:
   - pip install six
+  - travis_wait 30 git submodule update --init --recursive
 
 script:
   - python static/make_dockerfile.py
