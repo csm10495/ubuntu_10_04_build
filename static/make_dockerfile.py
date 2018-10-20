@@ -109,6 +109,7 @@ def downloadCertificateStore():
 def getAllReposToDesiredCheckouts(clean=True):
     for repo, changeset in GIT_CHECKOUTS.items():
         with tmpChdir(os.path.join(THIS_FOLDER, repo)):
+            print ('Checking out: %s' % repo)
             if subprocess.call('git checkout %s' % changeset, shell=True) != 0:
                 raise EnvironmentError("Failed to checkout repo %s -> %s" % (repo, changeset))
             if clean:
