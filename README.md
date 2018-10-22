@@ -1,5 +1,5 @@
 # ubuntu_10_04_build
-Dockerized Ubuntu 10.04 Build Environment
+Dockerized Ubuntu 10.04 Build Environment [![Build Status](https://csm10495.visualstudio.com/ubuntu_10_04_build/_apis/build/status/ubuntu_10_04_build-CI)](https://csm10495.visualstudio.com/ubuntu_10_04_build/_build/latest?definitionId=2)
 
 Sometimes we need to build things so that they work in old-legacy (unsupported/unsafe) environments. Building in this container can often allow executables to be used in most Linux builds after (and including) Ubuntu 10.04 (So 2010ish and later).
 
