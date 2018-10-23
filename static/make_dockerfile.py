@@ -73,12 +73,12 @@ ADD ginst /usr/local/dev/ginst
 WORKDIR /usr/local/dev/ginst
 RUN python -c "from ginst import *; g = GInst('8.2.0');g.installFromFolder('/usr/local/dev/gcc')"
 
-# Aliases for bash
-RUN echo "alias g++=/usr/local/gcc-8.2.0/bin/g++-8.2.0" >> ~/.bashrc
-RUN echo "alias gcc=/usr/local/gcc-8.2.0/bin/gcc-8.2.0" >> ~/.bashrc
-RUN echo "alias curl=/usr/local/curl/bin/curl" >> ~/.bashrc
-RUN echo "alias git=/usr/local/git/bin/git" >> ~/.bashrc
-RUN echo "alias openssl=/usr/local/openssl/bin/openssl" >> ~/.bashrc
+# Update alternatives
+update-alternatives --install /usr/bin/g++ g++ /usr/local/gcc-8.2.0/bin/g++-8.2.0 50
+update-alternatives --install /usr/bin/gcc gcc /usr/local/gcc-8.2.0/bin/gcc-8.2.0 50
+update-alternatives --install /usr/bin/curl curl /usr/local/curl/ 50
+update-alternatives --install /usr/bin/git git /usr/local/git/bin/git 50
+update-alternatives --install /usr/bin/openssl openssl /usr/local/openssl/bin/openssl 50
 
 CMD "/bin/bash"
 '''
