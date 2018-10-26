@@ -4,9 +4,10 @@ import os
 
 def __exec(bc, cmd, expectedRetCode=0):
     retCode, output = bc.exec_run(cmd)
+    output = output.decode()
     print('\n<CONTAINER>: ' + '\n<CONTAINER>: '.join(output.splitlines()))
     assert retCode == expectedRetCode
-    return output.encode()
+    return output
 
 @pytest.fixture(scope="function")
 def buildContainer():
