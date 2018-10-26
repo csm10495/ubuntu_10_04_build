@@ -80,6 +80,9 @@ RUN update-alternatives --install /usr/bin/curl curl /usr/local/curl/bin/curl 50
 RUN update-alternatives --install /usr/bin/git git /usr/local/git/bin/git 50
 RUN update-alternatives --install /usr/bin/openssl openssl /usr/local/openssl/bin/openssl 50
 
+# Delete un-needed sources (and save space)
+RUN rm -rf /usr/local/dev
+
 CMD "/bin/bash"
 '''
 
