@@ -6,7 +6,7 @@ def __exec(bc, cmd, expectedRetCode=0):
     retCode, output = bc.exec_run(cmd)
     print('\n<CONTAINER>: ' + '\n<CONTAINER>: '.join(output.splitlines()))
     assert retCode == expectedRetCode
-    return output
+    return output.encode()
 
 @pytest.fixture(scope="function")
 def buildContainer():
