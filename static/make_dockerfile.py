@@ -76,7 +76,7 @@ RUN python -c "from ginst import *; g = GInst('8.2.0');g.installFromFolder('/usr
 # Update alternatives
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/local/gcc-8.2.0/bin/g++-8.2.0 50
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/local/gcc-8.2.0/bin/gcc-8.2.0 50
-RUN update-alternatives --install /usr/bin/curl curl /usr/local/curl/ 50
+RUN update-alternatives --install /usr/bin/curl curl /usr/local/curl/bin/curl 50
 RUN update-alternatives --install /usr/bin/git git /usr/local/git/bin/git 50
 RUN update-alternatives --install /usr/bin/openssl openssl /usr/local/openssl/bin/openssl 50
 
