@@ -3,6 +3,7 @@ import pytest
 import os
 
 def __exec(bc, cmd, expectedRetCode=0):
+    print ('\n<CALLING>: %s' % cmd)
     retCode, output = bc.exec_run(cmd)
     output = output.decode()
     print('\n<CONTAINER>: ' + '\n<CONTAINER>: '.join(output.splitlines()))
