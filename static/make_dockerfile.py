@@ -71,7 +71,7 @@ WORKDIR /usr/local/dev
 ADD gcc /usr/local/dev/gcc
 ADD ginst /usr/local/dev/ginst
 WORKDIR /usr/local/dev/ginst
-RUN python -c "from ginst import *; g = GInst('8.2.0');g.installFromFolder('/usr/local/dev/gcc')"
+RUN python -c "from ginst import *; gccVersion = GccVersion('8.2.0', '--with-default-libstdcxx-abi=gcc4-compatible');g = GInst(gccVersion);g.installFromFolder('/usr/local/dev/gcc')"
 
 # Update alternatives
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/local/gcc-8.2.0/bin/g++-8.2.0 50
@@ -89,7 +89,7 @@ CMD "/bin/bash"
 GIT_CHECKOUTS = {
     'curl' : '432eb5f5c254ee8383b2522ce597c9219877923e', # 7.61.1 release
     'gcc'  : '9fb89fa845c1b2e0a18d85ada0b077c84508ab78', # 8.2.0
-    'ginst'  : 'master', # tip
+    'ginst'  : 'fe08326787a051abcd5245260d4321187c5ec7f3', # Last Good
     'git'  : 'cae598d9980661a978e2df4fb338518f7bf09572', # 2.19.1 release
     'openssl' : '1708e3e85b4a86bae26860aa5d2913fc8eff6086', # 1.1.1 release
 }

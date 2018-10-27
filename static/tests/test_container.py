@@ -16,6 +16,10 @@ int main()
 
 '''
 
+def test_get_container_info(bc):
+    ''' used to get some info that may be useful to future debug '''
+    bc.cmd('update-alternatives --get-selections')
+
 def test_volume_mount(bc):
     bc.cmd('touch /mnt/cwd/test')
     os.remove(os.path.join(os.getcwd(), 'test'))
