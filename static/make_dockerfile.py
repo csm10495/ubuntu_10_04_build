@@ -83,6 +83,9 @@ RUN update-alternatives --install /usr/bin/openssl openssl /usr/local/openssl/bi
 # Delete un-needed sources (and save space)
 RUN rm -rf /usr/local/dev
 
+# Fix update-alternative weirdness
+RUN yes '' | update-alternatives --force --all
+
 CMD "/bin/bash"
 '''
 
