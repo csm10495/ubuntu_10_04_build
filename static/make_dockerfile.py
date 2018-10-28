@@ -8,83 +8,59 @@ DOCKERFILE_BASE = \
 '''
 FROM ubuntu:10.04
 
-# This Ubuntu doesn't have its packages on the normal server anymore
-RUN sed -i -e "s/archive.ubuntu.com/old-releases.ubuntu.com/g" /etc/apt/sources.list
+# This Ubuntu doesn't have its packages on the normal server anymore also get some starter things
+RUN sed -i -e "s/archive.ubuntu.com/old-releases.ubuntu.com/g" /etc/apt/sources.list && \
+    apt-get update && apt-get install tar wget gcc g++ make nano libc6-dev-i386 python-pip python-dev python-argparse \
+    build-essential ia32-libs gcc-multilib g++-multilib git-core python libcurl4-openssl-dev libz-dev gettext zlib1g-dev \
+    checkinstall libgnutls-dev curl autoconf libtool tofrodos -y && apt-get clean && apt-get autoclean && apt-get autoremove -y && \
+    mkdir -p /usr/local/dev/
 
-# Get some starter things
-RUN apt-get update
-RUN apt-get install tar wget gcc g++ make nano libc6-dev-i386 python-pip python-dev -y
-RUN apt-get install python-argparse build-essential ia32-libs gcc-multilib g++-multilib -y
-RUN apt-get install git-core python libcurl4-openssl-dev libz-dev gettext zlib1g-dev -y
-RUN apt-get install checkinstall libgnutls-dev curl autoconf libtool tofrodos -y
-
-RUN mkdir -p /usr/local/dev/
 WORKDIR /usr/local/dev/
 
 # OpenSSL
 ADD openssl /usr/local/dev/openssl
-RUN fromdos /usr/local/dev/openssl/*
-RUN fromdos /usr/local/dev/openssl/*/**
 WORKDIR /usr/local/dev/openssl
-RUN chmod +x config
-RUN ./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl shared zlib
-RUN make -j4
-RUN make install
-RUN echo "/usr/local/openssl/lib" >> /etc/ld.so.conf.d/openssl.conf
-RUN ldconfig -v
-RUN /usr/local/openssl/bin/openssl version
+RUN fromdos /usr/local/dev/openssl/* && fromdos /usr/local/dev/openssl/*/** && chmod +x config && \
+    ./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl shared zlib && make -j4 && make install && \
+    echo "/usr/local/openssl/lib" >> /etc/ld.so.conf.d/openssl.conf && ldconfig -v && /usr/local/openssl/bin/openssl version
 
 # Curl
 ADD curl /usr/local/dev/curl
 WORKDIR /usr/local/dev/curl
-RUN chmod +x buildconf
-RUN ./buildconf
-#  --disable-shared
-RUN LIBS="-ldl" ./configure --with-ssl=/usr/local/openssl --prefix=/usr/local/curl
-RUN make -j4
-RUN make install
-RUN /usr/local/curl/bin/curl --version
+RUN chmod +x buildconf && ./buildconf && LIBS="-ldl" ./configure --with-ssl=/usr/local/openssl --prefix=/usr/local/curl && make -j4 && \
+    make install && /usr/local/curl/bin/curl --version
 
 # Add cacert.pem
 WORKDIR /usr/local/
 ADD cacert.pem cacert.pem
 
-# Git
+# Git (and telling it to use new certs)
 ADD git /usr/local/dev/git
 WORKDIR /usr/local/dev/git
-RUN fromdos *
-RUN fromdos */**
-RUN make configure
-RUN ./configure --with-openssl=/usr/local/openssl --prefix=/usr/local/git --with-curl=/usr/local/curl
-RUN make -j4
-RUN chmod +x check_bindir
-RUN make install
-RUN /usr/local/git/bin/git --version
-RUN echo "Host github.com\\n\\tStrictHostKeyChecking no\\n" >> /etc/ssh/ssh_config
-
-# Tell git to use the new certs
-RUN echo "[http]" >> ~/.gitconfig
-RUN echo "sslCAinfo = /usr/local/cacert.pem" >> ~/.gitconfig
+RUN fromdos * && fromdos */** && make configure && ./configure --with-openssl=/usr/local/openssl --prefix=/usr/local/git --with-curl=/usr/local/curl && \
+    make -j4 && chmod +x check_bindir && make install && /usr/local/git/bin/git --version && \
+    echo "Host github.com\\n\\tStrictHostKeyChecking no\\n" >> /etc/ssh/ssh_config && \
+    echo "[http]" >> ~/.gitconfig && \
+    echo "sslCAinfo = /usr/local/cacert.pem" >> ~/.gitconfig
 
 # GCC
 WORKDIR /usr/local/dev
 ADD gcc /usr/local/dev/gcc
 ADD ginst /usr/local/dev/ginst
 WORKDIR /usr/local/dev/ginst
-RUN python -c "from ginst import *; gccVersion = GccVersion('8.2.0', '--with-default-libstdcxx-abi=gcc4-compatible');g = GInst(gccVersion);g.installFromFolder('/usr/local/dev/gcc')"
+RUN python -c "from ginst import *; gccVersion = GccVersion('8.2.0', '--with-default-libstdcxx-abi=gcc4-compatible');g = GInst(gccVersion);g.installFromFolder('/usr/local/dev/gcc')" && \
+    apt-get clean && apt-get autoclean && apt-get autoremove -y
 
 # Update alternatives
-RUN update-alternatives --install /usr/bin/g++ g++ /usr/local/gcc-8.2.0/bin/g++-8.2.0 50
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/local/gcc-8.2.0/bin/gcc-8.2.0 50
-RUN update-alternatives --install /usr/bin/curl curl /usr/local/curl/bin/curl 50
-RUN update-alternatives --install /usr/bin/git git /usr/local/git/bin/git 50
-RUN update-alternatives --install /usr/bin/openssl openssl /usr/local/openssl/bin/openssl 50
+RUN update-alternatives --install /usr/bin/g++ g++ /usr/local/gcc-8.2.0/bin/g++-8.2.0 50 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/local/gcc-8.2.0/bin/gcc-8.2.0 50 && \
+    update-alternatives --install /usr/bin/curl curl /usr/local/curl/bin/curl 50 && \
+    update-alternatives --install /usr/bin/git git /usr/local/git/bin/git 50 && \
+    update-alternatives --install /usr/bin/openssl openssl /usr/local/openssl/bin/openssl 50 && \
+    yes '' | update-alternatives --force --all
 
 # Delete un-needed sources (and save space)
 RUN rm -rf /usr/local/dev
-
-# Fix update-alternative weirdness
-RUN yes '' | update-alternatives --force --all
 
 CMD "/bin/bash"
 '''
