@@ -12,7 +12,7 @@ FROM ubuntu:10.04
 RUN sed -i -e "s/archive.ubuntu.com/old-releases.ubuntu.com/g" /etc/apt/sources.list && \
     apt-get update && apt-get install tar wget gcc g++ make nano libc6-dev-i386 python-pip python-dev python-argparse \
     build-essential gcc-multilib g++-multilib python libcurl4-openssl-dev libz-dev gettext zlib1g-dev \
-    checkinstall libgnutls-dev autoconf libtool tofrodos -y --no-install-recommends && \
+    checkinstall libgnutls-dev autoconf libtool tofrodos automake -y --no-install-recommends && \
     apt-get clean && apt-get autoclean && apt-get autoremove -y  && \
     mkdir -p /usr/local/dev/
 
