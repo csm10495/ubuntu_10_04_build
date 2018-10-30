@@ -11,8 +11,9 @@ FROM ubuntu:10.04
 # This Ubuntu doesn't have its packages on the normal server anymore also get some starter things
 RUN sed -i -e "s/archive.ubuntu.com/old-releases.ubuntu.com/g" /etc/apt/sources.list && \
     apt-get update && apt-get install tar wget gcc g++ make nano libc6-dev-i386 python-pip python-dev python-argparse \
-    build-essential ia32-libs gcc-multilib g++-multilib git-core python libcurl4-openssl-dev libz-dev gettext zlib1g-dev \
-    checkinstall libgnutls-dev curl autoconf libtool tofrodos -y && apt-get clean && apt-get autoclean && apt-get autoremove -y && \
+    build-essential gcc-multilib g++-multilib python libcurl4-openssl-dev libz-dev gettext zlib1g-dev \
+    checkinstall libgnutls-dev autoconf libtool tofrodos -y --no-install-recommends && \
+    apt-get clean && apt-get autoclean && apt-get autoremove -y  && \
     mkdir -p /usr/local/dev/
 
 WORKDIR /usr/local/dev/
@@ -59,8 +60,11 @@ RUN update-alternatives --install /usr/bin/g++ g++ /usr/local/gcc-8.2.0/bin/g++-
     update-alternatives --install /usr/bin/openssl openssl /usr/local/openssl/bin/openssl 50 && \
     yes '' | update-alternatives --force --all
 
-# Delete un-needed sources (and save space)
-RUN rm -rf /usr/local/dev
+# Delete un-needed sources (and packages) (and save space)
+RUN rm -rf /usr/local/dev && \
+    rm /var/lib/apt/lists/*ubuntu*
+
+WORKDIR /
 
 CMD "/bin/bash"
 '''

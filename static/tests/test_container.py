@@ -67,12 +67,12 @@ def test_openssl_version(bc):
     output = bc.cmd('openssl version')
     assert '1.1.1' in output
 
-def test_simple_cpp_exe_old_abi(bc):
+def test_simple_cpp_exe_old_abi_32(bc):
     with open("test.cpp", 'w') as f:
         f.write(SIMPLE_CPP_SOURCE)
 
     # -D_GLIBCXX_USE_CXX11_ABI=0 is implicit with our specially built gcc
-    bc.cmd('g++ -std=c++17 /mnt/cwd/test.cpp -o /mnt/cwd/test')
+    bc.cmd('g++ -m32 -std=c++17 /mnt/cwd/test.cpp -o /mnt/cwd/test')
     bc.cmd('chmod +x /mnt/cwd/test')
     bc.cmd('/mnt/cwd/test')
 
@@ -81,11 +81,11 @@ def test_simple_cpp_exe_old_abi(bc):
     os.remove('test.cpp')
     os.remove('test')
 
-def test_simple_cpp_exe_static_cpp(bc):
+def test_simple_cpp_exe_static_cpp_32(bc):
     with open("test.cpp", 'w') as f:
         f.write(SIMPLE_CPP_SOURCE)
 
-    bc.cmd('g++ -std=c++17 -static-libstdc++ /mnt/cwd/test.cpp -o /mnt/cwd/test')
+    bc.cmd('g++ -m32 -std=c++17 -static-libstdc++ /mnt/cwd/test.cpp -o /mnt/cwd/test')
     bc.cmd('chmod +x /mnt/cwd/test')
     bc.cmd('/mnt/cwd/test')
 
@@ -94,11 +94,51 @@ def test_simple_cpp_exe_static_cpp(bc):
     os.remove('test.cpp')
     os.remove('test')
 
-def test_simple_c_exe(bc):
+def test_simple_c_exe_32(bc):
     with open("test.c", 'w') as f:
         f.write(SIMPLE_C_SOURCE)
 
-    bc.cmd('gcc /mnt/cwd/test.c -o /mnt/cwd/test')
+    bc.cmd('gcc -m32 /mnt/cwd/test.c -o /mnt/cwd/test')
+    bc.cmd('chmod +x /mnt/cwd/test')
+    bc.cmd('/mnt/cwd/test')
+
+    assert os.system('./test') == 0
+
+    os.remove('test.c')
+    os.remove('test')
+
+def test_simple_cpp_exe_old_abi_64(bc):
+    with open("test.cpp", 'w') as f:
+        f.write(SIMPLE_CPP_SOURCE)
+
+    # -D_GLIBCXX_USE_CXX11_ABI=0 is implicit with our specially built gcc
+    bc.cmd('g++ -std=c++17 -m64 /mnt/cwd/test.cpp -o /mnt/cwd/test')
+    bc.cmd('chmod +x /mnt/cwd/test')
+    bc.cmd('/mnt/cwd/test')
+
+    assert os.system('./test') == 0
+
+    os.remove('test.cpp')
+    os.remove('test')
+
+def test_simple_cpp_exe_static_cpp_64(bc):
+    with open("test.cpp", 'w') as f:
+        f.write(SIMPLE_CPP_SOURCE)
+
+    bc.cmd('g++ -std=c++17 -m64 -static-libstdc++ /mnt/cwd/test.cpp -o /mnt/cwd/test')
+    bc.cmd('chmod +x /mnt/cwd/test')
+    bc.cmd('/mnt/cwd/test')
+
+    assert os.system('./test') == 0
+
+    os.remove('test.cpp')
+    os.remove('test')
+
+def test_simple_c_exe_64(bc):
+    with open("test.c", 'w') as f:
+        f.write(SIMPLE_C_SOURCE)
+
+    bc.cmd('gcc -m64 /mnt/cwd/test.c -o /mnt/cwd/test')
     bc.cmd('chmod +x /mnt/cwd/test')
     bc.cmd('/mnt/cwd/test')
 
