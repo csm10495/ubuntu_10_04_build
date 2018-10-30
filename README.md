@@ -10,7 +10,7 @@ There are two versions of this: static and dynamic:
 # Dynamic
 Dynamic will attempt to wget and build modules within the Ubuntu 10.04 containter. This may be a bit 'yucky' from the security perspective since wget and even ssh doesn't seem to work well within the container (without newer openssl and others). So we skirt around some security in order to get the job done and build the container.
 
-Honestly dynamic is not intended to really be used and was more of a testing platform. I'm not planning on updating dynamic anynmore.
+Honestly dynamic is not intended to really be used and was more of a testing platform. I'm not planning on updating dynamic anymore.
 
 # Static
 Static is built and updated on the docker hub under: https://hub.docker.com/r/csm10495/ubuntu_10_04_build/
