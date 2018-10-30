@@ -38,7 +38,7 @@ ADD cacert.pem cacert.pem
 # Git (and telling it to use new certs)
 ADD git /usr/local/dev/git
 WORKDIR /usr/local/dev/git
-RUN fromdos * && fromdos */** && make configure && ./configure --with-openssl=/usr/local/openssl --prefix=/usr/local/git --with-curl=/usr/local/curl && \
+RUN fromdos * && fromdos */** && mkdir -p /etc/ssh && make configure && ./configure --with-openssl=/usr/local/openssl --prefix=/usr/local/git --with-curl=/usr/local/curl && \
     make -j4 && chmod +x check_bindir && make install && /usr/local/git/bin/git --version && \
     echo "Host github.com\\n\\tStrictHostKeyChecking no\\n" >> /etc/ssh/ssh_config && \
     echo "[http]" >> ~/.gitconfig && \
