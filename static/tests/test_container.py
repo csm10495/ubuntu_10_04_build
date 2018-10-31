@@ -1,5 +1,6 @@
 import docker
 import os
+import pytest
 import subprocess
 import sys
 
@@ -33,116 +34,123 @@ int main()
 
 '''
 
-def test_get_container_info(bc):
-    ''' used to get some info that may be useful to future debug '''
-    bc.cmd('update-alternatives --get-selections')
+class TestContainer(object):
+    @pytest.fixture(autouse=True)
+    def goto_temp(self, tmpdir):
+        ''' ensures that each test has its own temp directory to run in '''
+        print("\nRunning Test In tmpdir: %s" % str(tmpdir))
+        tmpdir.chdir() # change to pytest-provided temporary directory
 
-    # no idea how to do this just with the python docker sdk
-    print ("Image Size: %s" % subprocess.check_output('docker images %s --format "{{.Size}}"' % bc.image.tags[0], shell=True).decode())
+    def test_get_container_info(self, bc):
+        ''' used to get some info that may be useful to future debug '''
+        bc.cmd('update-alternatives --get-selections')
 
-def test_volume_mount(bc):
-    bc.cmd('touch /mnt/cwd/test')
-    os.remove(os.path.join(os.getcwd(), 'test'))
+        # no idea how to do this just with the python docker sdk
+        print ("Image Size: %s" % subprocess.check_output('docker images %s --format "{{.Size}}"' % bc.image.tags[0], shell=True).decode())
 
-def test_has_old_glibc(bc):
-    output = bc.cmd('ldd --version')
-    assert 'EGLIBC 2.11.1' in output
+    def test_volume_mount(self, bc):
+        bc.cmd('touch /mnt/cwd/test')
+        os.remove(os.path.join(os.getcwd(), 'test'))
 
-def test_gcc_version(bc):
-    output = bc.cmd('gcc --version')
-    assert '8.2.0' in output
+    def test_has_old_glibc(self, bc):
+        output = bc.cmd('ldd --version')
+        assert 'EGLIBC 2.11.1' in output
 
-def test_gpp_version(bc):
-    output = bc.cmd('g++ --version')
-    assert '8.2.0' in output
+    def test_gcc_version(self, bc):
+        output = bc.cmd('gcc --version')
+        assert '8.2.0' in output
 
-def test_git_can_clone_https(bc):
-    output = bc.cmd('git clone https://github.com/csm10495/ginst.git')
+    def test_gpp_version(self, bc):
+        output = bc.cmd('g++ --version')
+        assert '8.2.0' in output
 
-def test_curl_version(bc):
-    output = bc.cmd('curl --version')
-    assert 'unreleased' in output
+    def test_git_can_clone_https(self, bc):
+        output = bc.cmd('git clone https://github.com/csm10495/ginst.git')
 
-def test_openssl_version(bc):
-    output = bc.cmd('openssl version')
-    assert '1.1.1' in output
+    def test_curl_version(self, bc):
+        output = bc.cmd('curl --version')
+        assert 'unreleased' in output
 
-def test_simple_cpp_exe_old_abi_32(bc):
-    with open("test.cpp", 'w') as f:
-        f.write(SIMPLE_CPP_SOURCE)
+    def test_openssl_version(self, bc):
+        output = bc.cmd('openssl version')
+        assert '1.1.1' in output
 
-    # -D_GLIBCXX_USE_CXX11_ABI=0 is implicit with our specially built gcc
-    bc.cmd('g++ -m32 -std=c++17 /mnt/cwd/test.cpp -o /mnt/cwd/test')
-    bc.cmd('chmod +x /mnt/cwd/test')
-    bc.cmd('/mnt/cwd/test')
+    def test_simple_cpp_exe_old_abi_32(self, bc):
+        with open("test.cpp", 'w') as f:
+            f.write(SIMPLE_CPP_SOURCE)
 
-    assert os.system('./test') == 0
+        # -D_GLIBCXX_USE_CXX11_ABI=0 is implicit with our specially built gcc
+        bc.cmd('g++ -m32 -std=c++17 /mnt/cwd/test.cpp -o /mnt/cwd/test')
+        bc.cmd('chmod +x /mnt/cwd/test')
+        bc.cmd('/mnt/cwd/test')
 
-    os.remove('test.cpp')
-    os.remove('test')
+        assert os.system('./test') == 0
 
-def test_simple_cpp_exe_static_cpp_32(bc):
-    with open("test.cpp", 'w') as f:
-        f.write(SIMPLE_CPP_SOURCE)
+        os.remove('test.cpp')
+        os.remove('test')
 
-    bc.cmd('g++ -m32 -std=c++17 -static-libstdc++ /mnt/cwd/test.cpp -o /mnt/cwd/test')
-    bc.cmd('chmod +x /mnt/cwd/test')
-    bc.cmd('/mnt/cwd/test')
+    def test_simple_cpp_exe_static_cpp_32(self, bc):
+        with open("test.cpp", 'w') as f:
+            f.write(SIMPLE_CPP_SOURCE)
 
-    assert os.system('./test') == 0
+        bc.cmd('g++ -m32 -std=c++17 -static-libstdc++ /mnt/cwd/test.cpp -o /mnt/cwd/test')
+        bc.cmd('chmod +x /mnt/cwd/test')
+        bc.cmd('/mnt/cwd/test')
 
-    os.remove('test.cpp')
-    os.remove('test')
+        assert os.system('./test') == 0
 
-def test_simple_c_exe_32(bc):
-    with open("test.c", 'w') as f:
-        f.write(SIMPLE_C_SOURCE)
+        os.remove('test.cpp')
+        os.remove('test')
 
-    bc.cmd('gcc -m32 /mnt/cwd/test.c -o /mnt/cwd/test')
-    bc.cmd('chmod +x /mnt/cwd/test')
-    bc.cmd('/mnt/cwd/test')
+    def test_simple_c_exe_32(self, bc):
+        with open("test.c", 'w') as f:
+            f.write(SIMPLE_C_SOURCE)
 
-    assert os.system('./test') == 0
+        bc.cmd('gcc -m32 /mnt/cwd/test.c -o /mnt/cwd/test')
+        bc.cmd('chmod +x /mnt/cwd/test')
+        bc.cmd('/mnt/cwd/test')
 
-    os.remove('test.c')
-    os.remove('test')
+        assert os.system('./test') == 0
 
-def test_simple_cpp_exe_old_abi_64(bc):
-    with open("test.cpp", 'w') as f:
-        f.write(SIMPLE_CPP_SOURCE)
+        os.remove('test.c')
+        os.remove('test')
 
-    # -D_GLIBCXX_USE_CXX11_ABI=0 is implicit with our specially built gcc
-    bc.cmd('g++ -std=c++17 -m64 /mnt/cwd/test.cpp -o /mnt/cwd/test')
-    bc.cmd('chmod +x /mnt/cwd/test')
-    bc.cmd('/mnt/cwd/test')
+    def test_simple_cpp_exe_old_abi_64(self, bc):
+        with open("test.cpp", 'w') as f:
+            f.write(SIMPLE_CPP_SOURCE)
 
-    assert os.system('./test') == 0
+        # -D_GLIBCXX_USE_CXX11_ABI=0 is implicit with our specially built gcc
+        bc.cmd('g++ -std=c++17 -m64 /mnt/cwd/test.cpp -o /mnt/cwd/test')
+        bc.cmd('chmod +x /mnt/cwd/test')
+        bc.cmd('/mnt/cwd/test')
 
-    os.remove('test.cpp')
-    os.remove('test')
+        assert os.system('./test') == 0
 
-def test_simple_cpp_exe_static_cpp_64(bc):
-    with open("test.cpp", 'w') as f:
-        f.write(SIMPLE_CPP_SOURCE)
+        os.remove('test.cpp')
+        os.remove('test')
 
-    bc.cmd('g++ -std=c++17 -m64 -static-libstdc++ /mnt/cwd/test.cpp -o /mnt/cwd/test')
-    bc.cmd('chmod +x /mnt/cwd/test')
-    bc.cmd('/mnt/cwd/test')
+    def test_simple_cpp_exe_static_cpp_64(self, bc):
+        with open("test.cpp", 'w') as f:
+            f.write(SIMPLE_CPP_SOURCE)
 
-    assert os.system('./test') == 0
+        bc.cmd('g++ -std=c++17 -m64 -static-libstdc++ /mnt/cwd/test.cpp -o /mnt/cwd/test')
+        bc.cmd('chmod +x /mnt/cwd/test')
+        bc.cmd('/mnt/cwd/test')
 
-    os.remove('test.cpp')
-    os.remove('test')
+        assert os.system('./test') == 0
 
-def test_simple_c_exe_64(bc):
-    with open("test.c", 'w') as f:
-        f.write(SIMPLE_C_SOURCE)
+        os.remove('test.cpp')
+        os.remove('test')
 
-    bc.cmd('gcc -m64 /mnt/cwd/test.c -o /mnt/cwd/test')
-    bc.cmd('chmod +x /mnt/cwd/test')
-    bc.cmd('/mnt/cwd/test')
+    def test_simple_c_exe_64(self, bc):
+        with open("test.c", 'w') as f:
+            f.write(SIMPLE_C_SOURCE)
 
-    assert os.system('./test') == 0
+        bc.cmd('gcc -m64 /mnt/cwd/test.c -o /mnt/cwd/test')
+        bc.cmd('chmod +x /mnt/cwd/test')
+        bc.cmd('/mnt/cwd/test')
 
-    os.remove('test.c')
-    os.remove('test')
+        assert os.system('./test') == 0
+
+        os.remove('test.c')
+        os.remove('test')
